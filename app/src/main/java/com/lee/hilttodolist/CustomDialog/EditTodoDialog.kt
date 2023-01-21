@@ -37,7 +37,7 @@ class EditTodoDialog(
             input_btn -> {
                 Log.d(TAG, "등록 버튼 클릭")
                 val userInput = user_input.text.toString()
-                this.iDialog?.editTodos(userInput)
+                this.iDialog?.addATodos(userInput)
             }
             cancel_btn -> {
                 Log.d(TAG, "취소 버튼 클릭")

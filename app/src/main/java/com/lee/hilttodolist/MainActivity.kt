@@ -14,17 +14,22 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.textfield.TextInputEditText
 import com.lee.hilttodolist.CustomDialog.DeletedTodoDialog
 import com.lee.hilttodolist.CustomDialog.EditTodoDialog
 import com.lee.hilttodolist.Interface.IDialog
 import com.lee.hilttodolist.Interface.RVInterface
 import com.lee.hilttodolist.RecyclerViewAdapter.RVTodoAdapter
 import com.lee.hilttodolist.Utils.Constants.TAG
+import com.lee.hilttodolist.Utils.textChangesToFlow
 import com.lee.hilttodolist.ViewModel.TodoViewModel
 import com.lee.mytodolist.Model.Todo
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.edit_todo_dialog.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -40,6 +45,8 @@ class MainActivity : AppCompatActivity(), RVInterface, IDialog {
     // 어답터로 넘겨줄 데이터를 담을 리스트
     var todoList = ArrayList<Todo>()
 
+    private lateinit var searchInput: TextInputEditText
+
     // 어답터 생성
     private lateinit var rvTodoAdapter: RVTodoAdapter
 
@@ -47,6 +54,16 @@ class MainActivity : AppCompatActivity(), RVInterface, IDialog {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        this.searchInput = findViewById(R.id.search_todo)
+
+        lifecycleScope
+            .launch(context = Dispatchers.IO) {
+                todosViewModel.searchTermTest = searchInput
+                    .textChangesToFlow() // Flow<CharSequence?>
+                    .debounce(2000) // Flow<CharSequence?>
+                    .map { it.toString() } // Flow<String>
+            }
 
         // 리사이클러뷰 설정
         this.rvTodoAdapter = RVTodoAdapter(this,
@@ -136,11 +153,9 @@ class MainActivity : AppCompatActivity(), RVInterface, IDialog {
     }
 
     // 할일 추가
-    override fun editTodos(title: String) {
+    override fun addATodos(title: String) {
         if (title.length >= 6) {
-            todosViewModel.editTodos(title)
-            // 입력 후 텍스트창 초기화
-            user_input.setText("")
+            todosViewModel.addATodos(title)
             Toast.makeText(
                 this@MainActivity,
                 "할일이 성공적으로 추가되었습니다.",

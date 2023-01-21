@@ -28,8 +28,7 @@ class SingletonModule {
     @Singleton
     @Provides // 자동으로 주입? 제공해주는 것
     fun provideOkHttpClient(
-        baseInterceptor: Interceptor,
-        provideInterceptor: Interceptor,
+        baseInterceptor: Interceptor
     ): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor { message ->
             Log.d(TAG, "RetrofitClient - 로그를 찍기 위해 로깅 인터셉터를 추가 / message : $message")
@@ -51,7 +50,6 @@ class SingletonModule {
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .addInterceptor(baseInterceptor)
-            .addInterceptor(provideInterceptor)
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
@@ -82,10 +80,10 @@ class SingletonModule {
     @Singleton
     @Provides
     fun provideRetrofitClient() : Retrofit.Builder = Retrofit.Builder()
-            .baseUrl("ㅎ")
-            // 서버로부터 데이터를 받아와서 원하는 타입으로 데이터를 바꾸기 위해
-            // addConverterFactory(GsonConverterFactory.create())를 사용한다.
-            .addConverterFactory(GsonConverterFactory.create())
+        .baseUrl("https://phplaravel-574671-2962113.cloudwaysapps.com/api/v1/")
+        // 서버로부터 데이터를 받아와서 원하는 타입으로 데이터를 바꾸기 위해
+        // addConverterFactory(GsonConverterFactory.create())를 사용한다.
+        .addConverterFactory(GsonConverterFactory.create())
 
     @Singleton
     @Provides

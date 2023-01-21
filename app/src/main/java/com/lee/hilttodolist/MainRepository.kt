@@ -15,12 +15,12 @@ class MainRepository @Inject constructor(
     }
 
     // 추가
-    suspend fun editTodos(title: String): List<Todo> {
-        return mainApiService.editTodos(title).data ?: return emptyList()
+    suspend fun addATodo(title: String): Todo? {
+        return mainApiService.addATodo(title).data
     }
 
     // 삭제
-    suspend fun deletedTodos(id: Int): List<Todo> {
-        return mainApiService.deletedTodos(id).data ?: return emptyList()
+    suspend fun deletedTodos(id: Int): Todo? {
+        return mainApiService.deletedTodos(id).data
     }
 }

@@ -14,26 +14,6 @@ object Constants {
     const val TAG: String = "로그"
 }
 
-//fun<T> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiResponse<T>> = flow {
-//    emit(ApiResponse.Loading)
-//
-//    withTimeoutOrNull(20000L) {
-//        val response = call()
-//
-//        try {
-//            if (response.isSuccessful) {
-//                response.body()?.let { data ->
-//                    emit(ApiResponse.Success(data))
-//                }
-//            } else {
-//                response.errorBody()?.close()
-//            }
-//        } catch (e: Exception) {
-//            emit(ApiResponse.Failure((ApiError.UnknownError(e.localizedMessage as String))))
-//        }
-//    } ?: emit(ApiResponse.Failure((ApiError.UnknownError())))
-//}.flowOn(Dispatchers.IO)
-
 fun<T> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiResponse<T>> = flow {
     emit(ApiResponse.Loading)
 
@@ -60,5 +40,5 @@ fun<T> apiRequestFlow(call: suspend () -> Response<T>): Flow<ApiResponse<T>> = f
 
 // 싱글턴으로 만들어준다.
 object API {
-    const val BASE_URL: String = "ㅎ"
+    const val BASE_URL: String = "ㅎㅎ"
 }

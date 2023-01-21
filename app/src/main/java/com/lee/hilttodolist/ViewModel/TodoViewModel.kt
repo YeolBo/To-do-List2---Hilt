@@ -4,11 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lee.hilttodolist.MainRepository
-import com.lee.hilttodolist.Model.ApiResponse
 import com.lee.hilttodolist.Utils.Constants.TAG
 import com.lee.mytodolist.Model.Todo
-import com.lee.mytodolist.Model.TodosResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,6 +39,10 @@ class TodoViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+
+    private val _searchTerm = MutableSharedFlow<String>()
+    var searchTermTest: Flow<String> = emptyFlow()
+
     init {
         viewModelScope.launch {
             launch {
@@ -53,6 +56,14 @@ class TodoViewModel @Inject constructor(
                 reloadAction.collect {
                     Log.d(TAG, "ReviseTextViewModel - reloadAction")
                     refreshDataApiCall()
+                }
+            }
+            // 쓰레드 관련
+            launch(Dispatchers.IO) {
+                searchTermTest.collectLatest {
+                    Log.d(TAG, "TodoViewModel - searchTerm: $it")
+                    //TODO: 1. 검색 API 호출하기
+                    //TODO: 2. 응답에 따라 리스트 데이터 변경
                 }
             }
         }
@@ -81,17 +92,16 @@ class TodoViewModel @Inject constructor(
     // 삭제
     fun deletedTodos(id: Int) {
         viewModelScope.launch {
-            mainRepository.deletedTodos(id).map { deletedTodo ->
+            mainRepository.deletedTodos(id)?.let { deletedTodo ->
                 // 삭제된거 필터링해서 데이터 변경
                 _todos.value = _todos.value.filter { it.id != deletedTodo.id }
                 // 삭제된 녀석 보내기
                 _deletedTodo.emit(deletedTodo)
-                updateATodo(deletedTodo)
             }
         }
     }
 
-    fun refreshDataApiCall() {
+    private fun refreshDataApiCall() {
         _currentPage.value = 1
         viewModelScope.launch {
             mainRepository.fetchTodos(page = _currentPage.value).map {
@@ -100,10 +110,12 @@ class TodoViewModel @Inject constructor(
         }
     }
     // 할일 추가
-    fun editTodos(title: String){
+    fun addATodos(title: String){
         viewModelScope.launch {
-            mainRepository.editTodos(title).map {
-                _todos.value = _todos.value + it
+            mainRepository.addATodo(title)?.let {
+                val updatedTodos : MutableList<Todo> = _todos.value.toMutableList()
+                updatedTodos.add(0, it)
+                _todos.emit(updatedTodos)
                 updateATodo(it)
             }
         }

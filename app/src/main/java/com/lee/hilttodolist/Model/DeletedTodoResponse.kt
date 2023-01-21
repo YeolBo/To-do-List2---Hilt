@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 data class DeletedTodoResponse<T>(
     @SerializedName("data")
-    val `data`: List<T>?,
+    val `data`: T?,
     @SerializedName("message")
     val message: String?
 )
